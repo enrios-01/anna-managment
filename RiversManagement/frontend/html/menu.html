@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - La Abuela Ana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .calendar-day { min-height: 100px; border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; transition: all 0.2s; }
+        .calendar-day:hover { background-color: #fff1f2; cursor: pointer; }
+        .has-event { background-color: #fef2f2; }
+        .selected-day { ring: 2px inset #be123c; background-color: #fff1f2; }
+        .event-tag { 
+            font-size: 9px; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            margin-top: 2px; 
+            font-weight: 800; 
+            background-color: #be123c; 
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans h-screen overflow-hidden flex" onload="inicializarDashboard()">
+
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm">
+        <div class="p-6 border-b border-gray-100 flex flex-col items-center gap-2">
+            <div class="bg-red-700 p-2 rounded-lg text-white">
+                <i data-lucide="layout-dashboard"></i>
+            </div>
+            <h1 class="text-xl font-bold text-red-700 tracking-tighter">La Abuela Ana</h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="#" class="flex items-center gap-3 bg-red-50 p-3 rounded-xl font-bold text-red-700 border border-red-100 shadow-sm">
+                <i data-lucide="calendar"></i> Agenda
+            </a>
+            <a href="admin.html" class="flex items-center gap-3 p-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-red-700 transition font-bold">
+                <i data-lucide="users"></i> Gestión de Eventos
+            </a>
+            <a href="index.html" class="flex items-center gap-3 p-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-red-700 transition font-bold">
+                <i data-lucide="calendar-plus"></i> Nuevo Registro
+            </a>
+        </nav>
+        <div class="p-4 border-t border-gray-100">
+            <button onclick="location.href='index.html'" class="w-full bg-red-500 text-white p-3 rounded-xl font-bold hover:bg-red-600 transition flex items-center justify-center gap-2">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Salir
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white border-b border-gray-200 px-8 flex justify-between items-center shrink-0">
+            <h2 class="text-lg font-bold text-gray-700 uppercase tracking-tight">Panel Principal de Agenda</h2>
+            <div class="text-[10px] font-black text-green-600 bg-green-50 border border-green-100 px-3 py-1.5 rounded-full flex items-center gap-2">
+                <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div> SISTEMA ACTIVO
+            </div>
+        </header>
+
+        <div class="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden">
+            <div class="col-span-9 bg-white rounded-2xl border border-gray-200 shadow-md flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <h3 id="mes-año-titulo" class="font-bold text-xl text-red-700 capitalize"></h3>
+                    <div class="flex gap-2">
+                        <button onclick="cambiarMes(-1)" class="p-2 bg-white hover:text-red-700 rounded-lg border border-gray-200 shadow-sm transition"><i data-lucide="chevron-left"></i></button>
+                        <button onclick="irHoy()" class="px-4 py-2 bg-white hover:text-red-700 rounded-lg border border-gray-200 text-xs font-bold transition uppercase tracking-widest">Hoy</button>
+                        <button onclick="cambiarMes(1)" class="p-2 bg-white hover:text-red-700 rounded-lg border border-gray-200 shadow-sm transition"><i data-lucide="chevron-right"></i></button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-7 bg-white text-[10px] font-black text-gray-400 text-center py-3 uppercase border-b border-gray-100 tracking-widest">
+                    <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+                </div>
+                
+                <div id="contenedor-calendario" class="flex-1 grid grid-cols-7 overflow-y-auto no-scrollbar bg-gray-50"></div>
+            </div>
+
+            <div class="col-span-3 flex flex-col gap-6 overflow-hidden">
+                <div class="bg-white rounded-2xl p-6 border border-gray-200 flex-1 flex flex-col shadow-md border-t-4 border-red-700">
+                    <div class="mb-6">
+                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Agenda para el día</h4>
+                        <p id="fecha-seleccionada-txt" class="text-xl font-bold text-red-700">---</p>
+                    </div>
+                    
+                    <div id="lista-eventos-dia" class="flex-1 space-y-3 overflow-y-auto no-scrollbar pr-1">
+                        <div class="text-center py-12">
+                            <i data-lucide="calendar-range" class="w-8 h-8 text-gray-200 mx-auto mb-2"></i>
+                            <p class="text-gray-400 italic text-xs">Selecciona un día para ver los eventos.</p>
+                        </div>
+                    </div>
+
+                    <button onclick="location.href='index.html'" class="w-full mt-4 bg-pink-600 text-white py-3 rounded-xl font-bold hover:bg-pink-700 transition shadow-lg text-xs uppercase tracking-widest">
+                        + Nuevo Evento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let fechaFiltro = new Date(); 
+        let listaEventos = [];
+
+        async function inicializarDashboard() {
+            lucide.createIcons();
+            await cargarAPI();
+            dibujarCalendario();
+        }
+
+        async function cargarAPI() {
+            try {
+                const res = await fetch('http://localhost:5000/api/eventos/lista');
+                listaEventos = await res.json();
+            } catch (e) { console.error("Error conectando a Rivers Data"); }
+        }
+
+        function dibujarCalendario() {
+            const grid = document.getElementById('contenedor-calendario');
+            const titulo = document.getElementById('mes-año-titulo');
+            grid.innerHTML = '';
+
+            const anio = fechaFiltro.getFullYear();
+            const mes = fechaFiltro.getMonth();
+            
+            titulo.innerText = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' }).format(fechaFiltro);
+
+            const primerDia = new Date(anio, mes, 1).getDay();
+            const ultimoDia = new Date(anio, mes + 1, 0).getDate();
+
+            for (let i = 0; i < primerDia; i++) {
+                const div = document.createElement('div');
+                div.className = "calendar-day bg-gray-100/30";
+                grid.appendChild(div);
+            }
+
+            for (let d = 1; d <= ultimoDia; d++) {
+                const celda = document.createElement('div');
+                celda.className = "calendar-day p-2 flex flex-col bg-white";
+                
+                const fechaIso = `${anio}-${String(mes + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const eventosDia = listaEventos.filter(e => e.fecha_evento.startsWith(fechaIso));
+
+                let tags = '';
+                if (eventosDia.length > 0) {
+                    celda.classList.add('has-event');
+                    eventosDia.forEach(ev => {
+                        tags += `<div class="event-tag uppercase tracking-tighter">${ev.nombre_cliente}</div>`;
+                    });
+                }
+
+                celda.innerHTML = `
+                    <span class="text-[10px] font-bold text-gray-400">${d}</span>
+                    <div class="mt-1 flex flex-col gap-0.5">${tags}</div>
+                `;
+
+                celda.onclick = () => mostrarDetalles(fechaIso, eventosDia, celda);
+                grid.appendChild(celda);
+            }
+            lucide.createIcons();
+        }
+
+        function mostrarDetalles(iso, eventos, dom) {
+            document.querySelectorAll('.calendar-day').forEach(c => c.classList.remove('selected-day'));
+            dom.classList.add('selected-day');
+
+            const lista = document.getElementById('lista-eventos-dia');
+            const display = document.getElementById('fecha-seleccionada-txt');
+            
+            const f = new Date(iso + "T12:00:00");
+            display.innerText = f.toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+
+            if (eventos.length === 0) {
+                lista.innerHTML = `
+                    <div class="text-center py-12">
+                        <p class="text-gray-300 italic text-xs uppercase font-bold tracking-widest">Sin eventos agendados</p>
+                    </div>`;
+            } else {
+                lista.innerHTML = eventos.map(e => `
+                    <div onclick="window.location.href='admin_ficha.html?dni=${e.dni_cliente}'" class="p-4 bg-white border border-gray-100 rounded-xl hover:border-red-200 hover:shadow-md transition cursor-pointer group">
+                        <p class="text-[8px] font-black text-red-700 uppercase mb-1">Confirmado</p>
+                        <p class="font-bold text-gray-800 text-sm uppercase leading-tight">${e.nombre_cliente}</p>
+                        <p class="text-[10px] text-gray-400 mt-1 font-bold">${e.total_cubiertos_contratados} Pax / ${e.dni_cliente}</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function cambiarMes(n) {
+            fechaFiltro.setMonth(fechaFiltro.getMonth() + n);
+            dibujarCalendario();
+        }
+
+        function irHoy() {
+            fechaFiltro = new Date();
+            dibujarCalendario();
+        }
+    </script>
+</body>
+</html>

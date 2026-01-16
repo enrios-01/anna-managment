@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Evento - La Abuela Ana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans" onload="lucide.createIcons()">
+    
+    <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <div class="bg-red-700 p-2 rounded-lg text-white shadow-md">
+                <i data-lucide="calendar-plus"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-red-700 leading-none">La Abuela Ana</h1>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Sistema de Gestión de Eventos</p>
+            </div>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="window.location.href='menu.html'" class="text-gray-600 font-bold px-4 py-2 rounded-xl hover:bg-gray-100 transition text-sm">Volver</button>
+            <button onclick="window.location.reload()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-300 font-bold transition text-sm">Limpiar</button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto mt-10 bg-white rounded-3xl shadow-xl p-10 mb-20 border border-gray-100">
+        <h2 class="text-2xl font-bold text-red-700 mb-10 flex items-center gap-3 border-b pb-4 uppercase tracking-tighter">
+            <i data-lucide="file-plus-2"></i> Registro de Nuevo Evento
+        </h2>
+
+        <form id="form-evento-pro" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <div class="col-span-3"><h3 class="font-black text-red-700 uppercase text-[10px] tracking-[0.2em] flex items-center gap-2 mb-2"><i data-lucide="user" class="w-4 h-4"></i> Información del Cliente</h3></div>
+            
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">DNI Cliente (ID Único) *</label>
+                <input type="text" id="dni" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold focus:ring-2 focus:ring-red-500 outline-none transition" required>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Nombre (Agasajado/a) *</label>
+                <input type="text" id="nombre" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none focus:border-red-300" required>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Teléfonos de Contacto</label>
+                <input type="text" id="telefono" placeholder="Celular / Particular" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none">
+            </div>
+            <div class="col-span-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Domicilio Particular</label>
+                <input type="text" id="domicilio" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none">
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">E-Mail</label>
+                <input type="email" id="email" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none">
+            </div>
+
+            <div class="col-span-3 border-t pt-8"><h3 class="font-black text-red-700 uppercase text-[10px] tracking-[0.2em] flex items-center gap-2 mb-2"><i data-lucide="map-pin" class="w-4 h-4"></i> Ubicación y Logística</h3></div>
+            
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Fecha del Evento *</label>
+                <input type="date" id="fecha_evento" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none" required>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Tipo de Evento</label>
+                <select id="tipo_evento" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none">
+                    <option value="15 años">15 años</option>
+                    <option value="Casamiento">Casamiento</option>
+                    <option value="Empresarial">Empresarial</option>
+                    <option value="Cumpleaños">Cumpleaños</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Vendedor / Responsable</label>
+                <input type="text" id="vendedor" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none">
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Nombre del Salón</label>
+                <input type="text" id="salon" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none">
+            </div>
+            <div class="col-span-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Dirección del Salón</label>
+                <input type="text" id="direccion_salon" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none">
+            </div>
+
+            <div class="col-span-3 border-t pt-8"><h3 class="font-black text-red-700 uppercase text-[10px] tracking-[0.2em] flex items-center gap-2 mb-2"><i data-lucide="users" class="w-4 h-4"></i> Invitados y Dietas</h3></div>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 col-span-3 gap-4">
+                <div>
+                    <label class="block text-[9px] font-black text-gray-400 uppercase mb-2 text-center">Adultos</label>
+                    <input type="number" id="adultos" value="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-center outline-none" oninput="recalcular()">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-gray-400 uppercase mb-2 text-center">Adolescentes</label>
+                    <input type="number" id="adolescentes" value="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-center outline-none" oninput="recalcular()">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-gray-400 uppercase mb-2 text-center">Menores (S/Cargo)</label>
+                    <input type="number" id="menores" value="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-center outline-none">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-gray-400 uppercase mb-2 text-center">Adultos S/Cargo</label>
+                    <input type="number" id="sin_cargo" value="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-center outline-none" oninput="recalcular()">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-gray-400 uppercase mb-2 text-center">Vegetarianos</label>
+                    <input type="number" id="adultos_vege" value="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold text-center outline-none">
+                </div>
+            </div>
+
+            <div class="col-span-3 border-t pt-8"><h3 class="font-black text-red-700 uppercase text-[10px] tracking-[0.2em] flex items-center gap-2 mb-2"><i data-lucide="badge-dollar-sign" class="w-4 h-4"></i> Presupuesto Inicial</h3></div>
+
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Valor Cubierto ($)</label>
+                <input type="number" id="valor_cubierto" value="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none" oninput="recalcular()">
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">Seña / Pago ($)</label>
+                <input type="number" id="pagos_realizados" value="0" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none" oninput="recalcular()">
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">IVA (%)</label>
+                <select id="iva_pct" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 font-bold outline-none" onchange="recalcular()">
+                    <option value="0">Exento</option>
+                    <option value="10.5">10.5%</option>
+                    <option value="21" selected>21%</option>
+                </select>
+            </div>
+
+            <div class="bg-red-50 p-6 rounded-2xl border border-red-100 shadow-sm">
+                <label class="block text-[9px] font-black text-red-700 uppercase mb-2">Cubiertos Totales</label>
+                <input type="text" id="calc_unidades" readonly class="w-full bg-transparent font-black text-2xl text-red-800 outline-none" value="0.0 u.">
+            </div>
+            <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                <label class="block text-[9px] font-black text-emerald-700 uppercase mb-2">Unidades Pagadas</label>
+                <input type="text" id="calc_pagados" readonly 
+                    class="w-full bg-transparent font-black text-2xl text-emerald-900 outline-none" 
+                    value="0.0 u.">
+            </div>
+            <div class="bg-red-400 p-6 rounded-2xl shadow-lg shadow-red-100">
+                <label class="block text-[9px] font-black text-red-100 uppercase mb-2 text-white">Saldo a Pagar</label>
+                <input type="text" id="calc_resta_pagar" readonly class="w-full bg-transparent font-black text-2xl text-white outline-none" value="$ 0">
+            </div>
+
+            <div class="col-span-3 flex justify-center pt-8">
+                <button type="button" class="bg-pink-600 text-white px-16 py-5 rounded-2xl font-black shadow-xl shadow-pink-100 hover:bg-pink-700 transition-all uppercase tracking-widest text-sm" onclick="enviarFormulario()">
+                    Registrar Evento en La Abuela Ana
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        function recalcular() {
+            const adultos = parseFloat(document.getElementById('adultos').value) || 0;
+            const adolescentes = parseFloat(document.getElementById('adolescentes').value) || 0;
+            const sinCargo = parseFloat(document.getElementById('sin_cargo').value) || 0;
+            const valorC = parseFloat(document.getElementById('valor_cubierto').value) || 0;
+            const pagos = parseFloat(document.getElementById('pagos_realizados').value) || 0;
+            const iva = (parseFloat(document.getElementById('iva_pct').value) / 100) + 1;
+
+            // Lógica Rivers Data: Adultos + (Adolescentes/2) - Sin Cargo
+            const totalUnidades = adultos + (adolescentes * 0.5) - sinCargo;
+            document.getElementById('calc_unidades').value = totalUnidades.toFixed(1) + " u.";
+
+            const unidadesPagadas = pagos / (valorC * iva);
+            document.getElementById('calc_pagados').value = isFinite(unidadesPagadas) ? unidadesPagadas.toFixed(1) + " u." : "0.0 u.";
+
+            const saldoFinal = (totalUnidades - unidadesPagadas) * (valorC * iva);
+            document.getElementById('calc_resta_pagar').value = "$ " + saldoFinal.toLocaleString('es-AR', {minimumFractionDigits: 0});
+        }
+
+        async function enviarFormulario() {
+            const payload = {
+                dni: document.getElementById('dni').value,
+                nombre: document.getElementById('nombre').value,
+                telefono: document.getElementById('telefono').value,
+                domicilio: document.getElementById('domicilio').value,
+                email: document.getElementById('email').value,
+                fecha_evento: document.getElementById('fecha_evento').value,
+                tipo_evento: document.getElementById('tipo_evento').value,
+                vendedor: document.getElementById('vendedor').value,
+                salon: document.getElementById('salon').value,
+                direccion_salon: document.getElementById('direccion_salon').value,
+                adultos: document.getElementById('adultos').value,
+                adolescentes: document.getElementById('adolescentes').value,
+                menores: document.getElementById('menores').value,
+                sin_cargo: document.getElementById('sin_cargo').value,
+                adultos_vege: document.getElementById('adultos_vege').value,
+                valor_cubierto: document.getElementById('valor_cubierto').value,
+                pagos_realizados: document.getElementById('pagos_realizados').value
+            };
+
+            const res = await fetch('http://localhost:5000/api/evento/registro', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            if(res.ok) {
+                alert("✅ Evento registrado exitosamente.");
+                window.location.href = 'menu.html';
+            } else {
+                alert("❌ Error al registrar.");
+            }
+        }
+    </script>
+</body>
+</html>

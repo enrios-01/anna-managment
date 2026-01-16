@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramación Compacta - Anna Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Estilo para tarjetas seleccionadas */
+        .option-card input:checked + div {
+            border-color: #4f46e5;
+            background-color: #f5f3ff;
+        }
+        .option-card input:checked + div .icon-check { display: flex; }
+        
+        /* Ocultar scrollbar pero mantener funcionalidad */
+        .no-scrollbar::-webkit-scrollbar { width: 4px; }
+        .no-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        /* Ajuste de altura fija para evitar scroll general */
+        .main-h { height: calc(100vh - 80px); }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans h-screen overflow-hidden flex flex-col" onload="inicializarFicha()">
+
+    <header class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center z-50 shadow-sm">
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl font-black text-indigo-600 tracking-tighter leading-none">ANNA <span class="text-slate-800">MANAGEMENT</span></h1>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <div class="flex flex-col">
+                <h2 id="cliente-nombre" class="text-sm font-black text-slate-700 uppercase leading-none mb-1">Cargando...</h2>
+                <div class="flex gap-3 items-center">
+                    <span id="display-tipo-evento" class="text-[9px] font-bold bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-md uppercase tracking-tighter">---</span>
+                    <span class="text-[9px] font-bold text-slate-400 flex items-center gap-1">
+                        <i data-lucide="map-pin" class="w-2.5 h-2.5"></i> <span id="txt-salon">---</span>
+                    </span>
+                    <span class="text-[9px] font-bold text-slate-400 flex items-center gap-1">
+                        <i data-lucide="user-check" class="w-2.5 h-2.5"></i> <span id="txt-vendedor">---</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 text-center min-w-[60px]">
+                <p class="text-[9px] font-black text-slate-400 uppercase leading-none">Invitados</p>
+                <p class="text-xs font-black text-slate-800"><span id="cliente-pax">0</span> pax</p>
+            </div>
+            <button onclick="guardarDiagramacion()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-indigo-100">
+                <i data-lucide="save" class="w-3.5 h-3.5"></i> GUARDAR DATOS
+            </button>
+            <button onclick="location.href='menu.html'" class="text-slate-400 hover:text-slate-600 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+    </header>
+
+    <main class="main-h flex gap-3 p-3 overflow-hidden">
+        
+        <section class="flex-1 flex flex-col bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-3 border-b border-slate-100 bg-amber-50/50 flex items-center gap-2">
+                <i data-lucide="utensils" class="w-4 h-4 text-amber-600"></i>
+                <h3 class="text-xs font-black text-amber-800 uppercase tracking-tighter">1. BUFFET</h3>
+            </div>
+            <div id="grid-buffet" class="flex-1 overflow-y-auto p-2 space-y-2 no-scrollbar"></div>
+        </section>
+
+        <section class="flex-1 flex flex-col bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-3 border-b border-slate-100 bg-emerald-50/50 flex items-center gap-2">
+                <i data-lucide="chef-hat" class="w-4 h-4 text-emerald-600"></i>
+                <h3 class="text-xs font-black text-emerald-800 uppercase tracking-tighter">2. PLATOS</h3>
+            </div>
+            <div id="grid-platos" class="flex-1 overflow-y-auto p-2 space-y-2 no-scrollbar"></div>
+        </section>
+
+        <section class="flex-1 flex flex-col bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-3 border-b border-slate-100 bg-rose-50/50 flex items-center gap-2">
+                <i data-lucide="cake" class="w-4 h-4 text-rose-600"></i>
+                <h3 class="text-xs font-black text-rose-800 uppercase tracking-tighter">3. DULCE</h3>
+            </div>
+            <div id="grid-dulce" class="flex-1 overflow-y-auto p-2 space-y-2 no-scrollbar"></div>
+        </section>
+
+        <section class="w-64 bg-slate-900 rounded-3xl p-5 text-white flex flex-col shadow-2xl">
+            <div class="flex items-center gap-2 mb-4">
+                <i data-lucide="clipboard-check" class="w-4 h-4 text-indigo-400"></i>
+                <h3 class="text-xs font-black uppercase tracking-widest text-indigo-300">Resumen</h3>
+            </div>
+            <div id="resumen-lista" class="flex-1 space-y-2 overflow-y-auto no-scrollbar pr-1">
+                <p class="text-slate-500 italic text-[10px] text-center py-10">Diagrama vacío</p>
+            </div>
+            <div class="mt-4 pt-4 border-t border-slate-800">
+                <button onclick="window.print()" class="w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-black transition flex items-center justify-center gap-2 border border-white/10 uppercase">
+                    <i data-lucide="printer" class="w-3 h-3"></i> Imprimir Ficha
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const dni = urlParams.get('dni');
+
+        async function inicializarFicha() {
+            lucide.createIcons();
+            if(!dni) return;
+
+            // Carga de datos del cliente incluyendo campos logísticos
+            const resCli = await fetch(`http://localhost:5000/api/evento/resumen/${dni}`);
+            const dataCli = await resCli.json();
+            
+            document.getElementById('cliente-nombre').innerText = dataCli.cliente;
+            document.getElementById('cliente-pax').innerText = dataCli.total_contratado;
+            
+            // Poblar campos informativos del Header
+            document.getElementById('display-tipo-evento').innerText = dataCli.tipo_evento || 'S/D';
+            document.getElementById('txt-salon').innerText = dataCli.salon || 'No asignado';
+            document.getElementById('txt-vendedor').innerText = dataCli.vendedor || 'Sin vendedor';
+
+            // Carga masiva de opciones desde el catálogo
+            await Promise.all([
+                cargarCards('Recepcion', 'grid-buffet'),
+                cargarCards('Entrada Adulto', 'grid-platos'),
+                cargarCards('Principal Adulto', 'grid-platos'),
+                cargarCards('Principal Adolescente', 'grid-platos'),
+                cargarCards('Postre Adulto', 'grid-dulce'),
+                cargarCards('Mesa Dulce', 'grid-dulce'),
+                cargarCards('Final Dulce', 'grid-dulce'),
+                cargarCards('Especial', 'grid-platos')
+            ]);
+        }
+
+        async function cargarCards(categoria, contenedorId) {
+            const res = await fetch(`http://localhost:5000/api/gastronomia/opciones/${encodeURIComponent(categoria)}`);
+            const platos = await res.json();
+            const grid = document.getElementById(contenedorId);
+
+            platos.forEach(p => {
+                const label = document.createElement('label');
+                label.className = "option-card relative block cursor-pointer group";
+                label.innerHTML = `
+                    <input type="checkbox" name="opcion_menu" value="${p.id_plato}" class="sr-only" onchange="actualizarResumen()">
+                    <div class="p-3 bg-white border border-slate-100 rounded-xl transition-all group-hover:border-indigo-200 flex justify-between items-center shadow-sm">
+                        <div class="flex flex-col">
+                            <span class="text-[8px] font-black text-slate-300 uppercase leading-none mb-1">${categoria}</span>
+                            <span class="font-bold text-slate-700 text-[11px] leading-none">${p.nombre_plato}</span>
+                        </div>
+                        <div class="icon-check hidden h-4 w-4 bg-indigo-600 rounded-full items-center justify-center text-white">
+                            <i data-lucide="check" class="w-2.5 h-2.5"></i>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(label);
+            });
+            lucide.createIcons();
+        }
+
+        function actualizarResumen() {
+            const seleccionados = document.querySelectorAll('input[name="opcion_menu"]:checked');
+            const lista = document.getElementById('resumen-lista');
+            
+            if(seleccionados.length === 0) {
+                lista.innerHTML = '<p class="text-slate-500 italic text-[10px] text-center py-10">Diagrama vacío</p>';
+                return;
+            }
+
+            lista.innerHTML = Array.from(seleccionados).map(input => {
+                const nombre = input.nextElementSibling.querySelector('span:last-child').innerText;
+                return `<div class="p-2 bg-white/5 border border-white/10 rounded-lg flex items-center gap-2">
+                            <div class="w-1 h-3 bg-indigo-500 rounded-full"></div>
+                            <span class="text-[9px] font-bold text-slate-300 uppercase truncate">${nombre}</span>
+                        </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        async function guardarDiagramacion() {
+            const ids = Array.from(document.querySelectorAll('input[name="opcion_menu"]:checked')).map(i => i.value);
+            const res = await fetch('http://localhost:5000/api/gastronomia/seleccionar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ dni: dni, platos: ids })
+            });
+            if(res.ok) alert("✅ Diagramación guardada bajo el DNI " + dni);
+        }
+    </script>
+</body>
+</html>
