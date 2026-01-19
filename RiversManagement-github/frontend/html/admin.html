@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Eventos - La Abuela Ana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans" onload="inicializarAdmin()">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col hidden md:flex shadow-sm">
+            <div class="p-6 border-b border-gray-100 flex flex-col items-center gap-2 text-center">
+                <div class="bg-red-700 p-2 rounded-lg text-white shadow-md">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <h1 class="text-xl font-bold text-red-700 tracking-tighter">La Abuela Ana</h1>
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="menu.html" class="flex items-center gap-3 p-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-red-700 transition font-bold">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+                </a>
+                <a href="#" class="flex items-center gap-3 bg-red-50 p-3 rounded-xl font-bold text-red-700 border border-red-100 shadow-sm">
+                    <i data-lucide="calendar-days" class="w-5 h-5"></i> Gestión de Eventos
+                </a>
+                <a href="index.html" class="flex items-center gap-3 p-3 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-red-700 transition font-bold">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i> Nuevo Registro
+                </a>
+            </nav>
+            <div class="p-4 border-t border-gray-100">
+                <button onclick="cerrarSesion()" class="w-full bg-red-500 text-white p-3 rounded-xl font-bold hover:bg-red-600 transition flex items-center justify-center gap-2">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Salir
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-8">
+            <header class="flex justify-between items-center mb-10">
+                <div>
+                    <h1 class="text-3xl font-bold text-red-700 italic tracking-tight">Control de Cartera</h1>
+                    <p class="text-gray-500 font-medium">Visualiza el estado de cobro y logística de tus eventos.</p>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="location.reload()" class="p-3 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 transition shadow-sm text-gray-400">
+                        <i data-lucide="rotate-cw" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="location.href='index.html'" class="bg-pink-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-pink-100 hover:bg-pink-700 transition">
+                        <i data-lucide="plus" class="w-5 h-5"></i> Nuevo Evento
+                    </button>
+                </div>
+            </header>
+
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-200 mb-8 flex items-center gap-4">
+                <div class="bg-gray-100 p-3 rounded-2xl">
+                    <i data-lucide="search" class="w-6 h-6 text-gray-400"></i>
+                </div>
+                <input type="text" id="buscador" oninput="filtrarEventos()" placeholder="Buscar por cliente, DNI o fecha..." 
+                    class="w-full bg-transparent border-none focus:ring-0 text-lg font-bold text-gray-700 outline-none placeholder:text-gray-300">
+            </div>
+
+            <div id="contenedor-eventos" class="grid grid-cols-1 gap-4">
+                <div class="text-center py-20">
+                    <div class="animate-spin inline-block w-8 h-8 border-4 border-pink-600 border-t-transparent rounded-full mb-4"></div>
+                    <p class="text-gray-400 font-bold uppercase tracking-widest text-xs">Sincronizando Fichas...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 🔹 CONFIGURACIÓN DE CONEXIÓN RIVERS DATA
+        const API_URL = 'http://TU_IP_PUBLICA:5000'; // REEMPLAZA CON TU IP DE DIGITALOCEAN
+        let baseEventos = [];
+
+        async function inicializarAdmin() {
+            lucide.createIcons();
+            await cargarEventos();
+        }
+
+        async function cargarEventos() {
+            try {
+                const response = await fetch(`${API_URL}/api/eventos/lista`);
+                if (!response.ok) throw new Error("Error en el servidor");
+                baseEventos = await response.json();
+                renderizarEventos(baseEventos);
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('contenedor-eventos').innerHTML = `
+                    <div class="bg-red-50 p-8 rounded-3xl border border-red-100 text-center">
+                        <i data-lucide="alert-triangle" class="w-12 h-12 text-red-500 mx-auto mb-4"></i>
+                        <h2 class="text-red-800 font-bold text-xl uppercase">Error de Conexión</h2>
+                        <p class="text-red-600">No se pudo contactar con el servidor en ${API_URL}</p>
+                    </div>`;
+                lucide.createIcons();
+            }
+        }
+
+        function renderizarEventos(lista) {
+            const container = document.getElementById('contenedor-eventos');
+            if (lista.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-400 py-10 font-bold uppercase tracking-widest text-xs">Sin registros coincidentes.</p>`;
+                return;
+            }
+
+            container.innerHTML = lista.map(evento => {
+                const contratados = parseFloat(evento.total_cubiertos_contratados) || 0;
+                const unidadesPagas = parseFloat(evento.unidades_pagas || (contratados - (parseFloat(evento.unidades_restantes) || 0)));
+                const porcentaje = contratados > 0 ? Math.min(Math.round((unidadesPagas / contratados) * 100), 100) : 0;
+
+                let colorBarra = "bg-red-600";
+                if (porcentaje >= 100) colorBarra = "bg-green-500";
+                else if (porcentaje < 30) colorBarra = "bg-pink-600";
+
+                return `
+                    <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md hover:border-red-100 transition-all flex flex-col lg:flex-row items-center gap-8">
+                        <div class="flex-1 w-full text-center lg:text-left">
+                            <div class="flex items-center justify-center lg:justify-start gap-2 mb-2">
+                                <span class="bg-red-50 text-red-700 text-[10px] font-black px-3 py-1 rounded-full uppercase border border-red-100">
+                                    ${evento.fecha_evento}
+                                </span>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-800 uppercase tracking-tight">${evento.nombre_cliente}</h2>
+                            <p class="text-gray-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-1">DNI: ${evento.dni_cliente}</p>
+                        </div>
+                        <div class="w-full lg:w-80">
+                            <div class="flex justify-between items-end mb-2">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Progreso de Pago (${porcentaje}%)</p>
+                                <p class="text-[10px] font-bold text-gray-700">${unidadesPagas.toFixed(1)} / ${contratados.toFixed(1)} u.</p>
+                            </div>
+                            <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden">
+                                <div class="h-full ${colorBarra} transition-all duration-1000" style="width: ${porcentaje}%"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="decidirRutaGestion('${evento.dni_cliente}')" 
+                                class="bg-pink-600 text-white h-14 px-8 rounded-2xl font-bold hover:bg-pink-700 transition flex items-center gap-3 shadow-lg shadow-pink-100">
+                                <i data-lucide="clipboard-edit" class="w-5 h-5"></i>
+                                Gestionar
+                            </button>
+                        </div>
+                    </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        async function decidirRutaGestion(dni) {
+            try {
+                // 🔹 Ruta de verificación actualizada a la IP del VPS
+                const res = await fetch(`${API_URL}/api/evento/verificar_estado/${dni}`);
+                const data = await res.json();
+                window.location.href = data.tiene_menu ? `admin_ficha.html?dni=${dni}` : `ficha.html?dni=${dni}`;
+            } catch (e) {
+                window.location.href = `ficha.html?dni=${dni}`;
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('user_name');
+            localStorage.removeItem('user_role');
+            window.location.href = 'login.html';
+        }
+
+        function filtrarEventos() {
+            const query = document.getElementById('buscador').value.toLowerCase();
+            const filtrados = baseEventos.filter(e => 
+                e.nombre_cliente.toLowerCase().includes(query) || 
+                e.dni_cliente.includes(query) ||
+                e.fecha_evento.includes(query)
+            );
+            renderizarEventos(filtrados);
+        }
+    </script>
+</body>
+</html>
